@@ -1,22 +1,60 @@
 # financial-analyzer
 
-A clean Python package for loading financial transactions from CSV, validating them, running a few useful control-style checks, and returning the result as either readable text or JSON-ready data.
+`financial-analyzer` is a Python package and CLI for loading transaction data from CSV, validating it, running lightweight control-style checks, and returning the results as either readable text or JSON-ready output.
 
-This version is built to be portfolio-worthy.
+It is designed as a small but production-minded portfolio project: structured, testable, typed, and ready to extend into API-based workflows.
 
-It has structure. It has tests. It has linting. It has typing. It has CI.
+---
 
-## What it does
+## Features
 
-- Loads and validates CSV transaction data
-- Summarizes total credits and debits per account
-- Flags accounts where debits exceed credits by more than 20%
-- Returns the top 3 largest transactions
-- Produces both plain-text and JSON-ready report output
+- Load and validate financial transaction CSV files
+- Summarize total credits and debits per account
+- Flag accounts where debits exceed credits by more than 20%
+- Identify the top 3 largest individual transactions
+- Return reports as either plain text or JSON-ready data
+- Run through a CLI or import as a Python package
 
-## Project structure
+---
 
-```text
+## Why this project exists
+
+This project was built to demonstrate more than basic scripting.
+
+It shows how to structure a small Python codebase into clear modules, validate input safely, separate analysis from reporting, expose a command-line interface, and support software quality practices such as testing, linting, typing, and CI.
+
+In short: not just code that works, but code that is meant to be read, extended, and trusted.
+
+---
+
+## Example usage
+
+### CLI output
+
+```powershell
+financial-analyzer data\sample_transactions.csv
+JSON output
+financial-analyzer data\sample_transactions.csv --json
+Module usage
+from financial_analyzer.loader import load_transactions
+from financial_analyzer.report import build_report, format_report
+
+transactions = load_transactions("data/sample_transactions.csv")
+report = build_report(transactions)
+
+print(format_report(report))
+print(report.to_json())
+Sample output
+FINANCIAL TRANSACTION SUMMARY REPORT
+====================================
+
+Total credits and debits per account
+------------------------------------
+ACC1001    Credits:    $4,900.00   Debits:    $2,300.00
+ACC1002    Credits:    $6,300.00   Debits:    $4,400.00
+ACC1003    Credits:    $2,150.00   Debits:    $1,025.00
+ACC1004    Credits:   $10,000.00   Debits:    $6,650.00
+Project structure
 financial_analyzer/
 ├── pyproject.toml
 ├── README.md
@@ -35,105 +73,81 @@ financial_analyzer/
 │   ├── __init__.py
 │   ├── conftest.py
 │   ├── test_analysis.py
+│   ├── test_cli.py
 │   ├── test_loader.py
 │   └── test_report.py
 └── data/
     └── sample_transactions.csv
-```
+Installation
+Windows PowerShell
 
-## The Windows issue you hit
+After unzipping or cloning the project, open PowerShell in the project root and run:
 
-You were not inside the project directory.
-
-That one mistake caused almost everything else:
-- `pip install -e .[dev]` looked at `C:\Users\ogonn` instead of the project folder
-- `pytest` searched your whole home directory and crashed on protected Windows folders
-- `financial-analyzer` was not found because the package never got installed
-- `source .venv/bin/activate` is a Unix command, not a PowerShell command
-
-## Correct setup on Windows PowerShell
-
-After unzipping the project, go into the project folder first.
-
-```powershell
-cd C:\path\to\financial-analyzer
 python -m venv .venv
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
 pip install -e .[dev]
-```
-
-If PowerShell blocks activation, run this once in the same PowerShell window:
-
-```powershell
-Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
-```
-
-Then activate again:
-
-```powershell
-.\.venv\Scripts\Activate.ps1
-```
-
-## Run tests
-
-Run pytest from the project root only:
-
-```powershell
-pytest
-```
-
-Or explicitly point to the tests folder:
-
-```powershell
-pytest tests
-```
-
-## Run the CLI
-
-Once installed:
-
-```powershell
-financial-analyzer data\sample_transactions.csv
-financial-analyzer data\sample_transactions.csv --json
-```
-
-Fallback if your shell has not picked up the script yet:
-
-```powershell
-python -m financial_analyzer.cli data\sample_transactions.csv
-python -m financial_analyzer.cli data\sample_transactions.csv --json
-```
-
-## Development checks
-
-```powershell
+Run tests
+pytest tests -q
+Development checks
 ruff check .
-mypy .
-pytest
-```
+mypy src
+pytest tests
+Analytical rule: 20% excess debit threshold
 
-## What makes the 20% threshold useful
+The 20% threshold is a simple screening rule, not a universal accounting standard.
 
-The threshold is not a law of nature. It is a simple screening rule.
+If an account’s total debits exceed total credits by more than 20%, the account is flagged for review. In a real financial environment, that threshold would usually be tuned by account type, business model, seasonality, and historical patterns. Here, it serves as a lightweight early-warning control.
 
-If debits exceed credits by more than 20%, that account may be under unusual cash outflow pressure. In a real finance environment, the threshold would be tuned by account type, business line, seasonality, and historical behavior. Here, it serves as a lightweight early-warning control.
+Output design
 
-## GitHub steps
+Operational messages use logging.
 
-Create a new repository called `financial-analyzer`, then run:
+The final report is kept separate from logging and can be rendered in two ways:
 
-```powershell
+human-readable text via format_report(...)
+JSON-ready structured output via to_json()
+
+This makes the package easier to extend into APIs, scheduled jobs, or dashboard workflows.
+
+Quality checks
+
+This project includes:
+
+modular package structure
+docstrings on public functions
+input validation and error handling
+pytest-based tests
+Ruff linting
+mypy type checking
+GitHub Actions CI
+Roadmap
+
+Planned next improvements:
+
+configurable debit threshold from the CLI
+configurable top-N transaction reporting
+date and account filtering
+richer JSON schema for downstream systems
+FastAPI wrapper for API-based use
+GitHub
+
+To publish the project:
+
 git init
 git add .
 git commit -m "Initial commit: financial-analyzer"
 git branch -M main
 git remote add origin https://github.com/<your-username>/financial-analyzer.git
 git push -u origin main
-```
+License
 
-## Notes
+MIT
 
-Operational messages use logging.
 
-The final report still goes to standard output from the CLI, because that is not an operational log. That is the actual product of the command.
+---
+
+Paste that in. Commit it. Push it.
+
+Then we move to the next level: turning this into an API and making it *actually impressive*.
